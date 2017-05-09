@@ -95,7 +95,26 @@ namespace DllImportTest
             Console.Write("Major Version: {0}, Minor Version: {1} \r\n", majorVersion, minorVersion);
             Console.Write("Press any key to stop...");
             Console.ReadKey();
+
+            //Create Handle
+            IntPtr stbHandle = STBCreateHandle((uint)STBExecFlag.FaceTracking);
         }
+    }
+
+//#define STB_FUNC_BD  (0x00000001U)  /* [LSB]bit0: Body Tracking           00000000001     */
+//#define STB_FUNC_DT  (0x00000004U)  /* [LSB]bit2: Face Tracking           00000000100     */
+//#define STB_FUNC_PT  (0x00000008U)  /* [LSB]bit3: Face Direction          00000001000     */
+//#define STB_FUNC_AG  (0x00000010U)  /* [LSB]bit4: Age Estimation          00000010000     */
+//#define STB_FUNC_GN  (0x00000020U)  /* [LSB]bit5: Gender Estimation       00000100000     */
+//#define STB_FUNC_GZ  (0x00000040U)  /* [LSB]bit6: Gaze Estimation         00001000000     */
+//#define STB_FUNC_BL  (0x00000080U)  /* [LSB]bit7: Blink Estimation        00010000000     */
+//#define STB_FUNC_EX  (0x00000100U)  /* [MSB]bit0: Expression Estimation   00100000000     */
+//#define STB_FUNC_FR  (0x00000200U)  /* [MSB]bit1: Face Recognition        01000000000     */
+    [Flags]
+    public enum STBExecFlag : ushort
+    {
+        BodyTracking = 0x0001, FaceTracking = 0x0004, FaceDir = 0x0008, Age = 0x0010,
+        Gender = 0x0020, Gaze = 0x0040, Blink = 0x0080, Expression = 0x0100, FaceRecog = 0x0200
     }
 
     public enum STBOkaoExpression
