@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO.Ports;
+using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Threading;
 
 namespace OmronOkaoSTBLib
@@ -7,49 +8,33 @@ namespace OmronOkaoSTBLib
     public class SerialHandler
     {
         //DataReceived event didnt work in Unity.
-        public delegate int DataPushedEventHandler(byte[] dataStream);
-        public delegate void DataReceivingTeminatedEvnetHandler();
-
+        public delegate int OnDataPushEventHandler(byte[] dataStream);
+        public delegate void OnDataReceivingTeminatedEvnetHandler();
+        public delegate void OnPreparedEventHandler();
         public delegate void OnSerialThreadingStoppedEventHandler();
 
-        public delegate void OnPreparedEventHandler();
+        public static event OnPreparedEventHandler OnPrepared;
+        public static event OnDataPushEventHandler OnDataPush;
+        public static event OnSerialThreadingStoppedEventHandler OnSerialThreadingStopped;
 
-        public event DataPushedEventHandler OnDataPush;
-        public event OnSerialThreadingStoppedEventHandler OnSerialThreadingStopped;
-
-        public event OnPreparedEventHandler OnPrepared;
-
-        public string PortName;
         public enum BSPState
         {
             S9600, S38400, S115200, S230400, S460800, S921600
         }
-        public BSPState BaudRateState;
 
         private static SerialPort _serialPort;
-
-
-        public bool IsRunning = false;
-        public bool IsInvoked = false;
-
+        private static Thread _readingThread;
         private bool _continuousMode = false;
 
-        // Use this for initialization
-        static void Main(string[] args)
-        {
-            Console.Write("System has started.\r\nPlease input serial port name:");
-            string portName = Console.ReadLine();
-            
-            SerialPortOpen(portName);
 
-            while (true) { }
+        public static void CreateSerialHandler(string portName, BSPState bauState = BSPState.S921600)
+        {
+            SerialPortOpen(portName, bauState);
         }
 
-//        public string
-
-        public SerialHandler(string portName)
+        public static void DeleteSerialHandler()
         {
-            SerialPortOpen(portName);
+            
         }
 
         //MEMO: http://www.alanzucconi.com/2016/12/01/asynchronous-serial-communication/
@@ -72,7 +57,7 @@ namespace OmronOkaoSTBLib
             Console.WriteLine("Serial port {0}:{1} has been opened.", portName, baudRate);
         }
 
-        public void SerialPortClose()
+        public static void SerialPortClose()
         {
             if (_serialPort != null && _serialPort.IsOpen)
             {
@@ -82,30 +67,40 @@ namespace OmronOkaoSTBLib
             }
         }
 
-        public Thread CreateSerialThread()
+        public static void StartSerialReadingThread()
         {
-            Thread readingThread = new Thread(ReadDataStream);
-
-            return readingThread;
+            _readingThread = new Thread(ReadDataStream);
+            _readingThread.Start();
         }
 
-        private void ReadDataStream()
+        private static void ReadDataStream()
         {
             int count = 0;
-            byte[] recvBuffer = new byte[4096];
+            int countMax = 6;
+            byte[] recvBuffer = new byte[6];
 
             while (true)
             {
                 try
                 {
-                    Console.WriteLine("Start to read data stream.");
-
-                    if (count < 4096)
+                    if (count < countMax)
+                    {
                         recvBuffer[count] = (byte) _serialPort.ReadByte();
+                        count++;
+                    }
                     else
                     {
+                        Console.WriteLine("Start to push data stream.");
                         int resCode = OnDataPush.Invoke(recvBuffer);
-                        if (resCode != 0) break;
+
+                        if (resCode == 0)
+                        {
+                            countMax = BitConverter.ToInt32(recvBuffer, 2);
+                            recvBuffer = new byte[countMax];
+                        }
+                        else
+                            break;
+
                         count = 0;
                     }
                 }
@@ -123,16 +118,27 @@ namespace OmronOkaoSTBLib
 
             _serialPort.BaseStream.Flush();
             OnSerialThreadingStopped.Invoke();
-            if (_continuousMode)
-            {
-                OnPrepared.BeginInvoke(null, null);
-            }
+//            if (_continuousMode)
+//            {
+//                OnPrepared.BeginInvoke(null, null);
+//            }
         }
 
-        public void SendMessage(byte[] byteBuffer)
+        public static void SendMessage(byte[] byteBuffer)
         {
             _serialPort.Write(byteBuffer, 0, byteBuffer.Length);
+//            StartSerialReadingThread();
+        }
+
+        // Main Entry for Test
+        static void Main(string[] args)
+        {
+            Console.Write("System has started.\r\nPlease input serial port name:");
+            string portName = Console.ReadLine();
+
+            SerialPortOpen(portName);
+
+            while (true) { }
         }
     }
-
 }

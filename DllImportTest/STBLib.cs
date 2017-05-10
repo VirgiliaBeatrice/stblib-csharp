@@ -1,88 +1,89 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using OmronOkaoSTBLib;
 
-namespace DllImportTest
+namespace OmronOkaoSTBLib
 {
-    class Program
+    class STBLib
     {
         //dumpbin.exe /exports .dll file
         [DllImport("STB.dll", EntryPoint = "#1", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int STBGetVersion(ref byte pnMajorVersion, ref byte pnMinorVersion);
+        public static extern int STBGetVersion(ref byte pnMajorVersion, ref byte pnMinorVersion);
 
         [DllImport("STB.dll", EntryPoint = "#2", CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr STBCreateHandle(uint unUseFuncFlag);
+        public static extern IntPtr STBCreateHandle(uint unUseFuncFlag);
 
         [DllImport("STB.dll", EntryPoint = "#3", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void STBDeleteHandle(IntPtr hSTB);
+        public static extern void STBDeleteHandle(IntPtr hSTB);
 
         [DllImport("STB.dll", EntryPoint = "#10", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int STBSetFrameResult(IntPtr hSTB, ref STBFrameResult stbFrameResult);
+        public static extern int STBSetFrameResult(IntPtr hSTB, ref STBFrameResult stbFrameResult);
 
         [DllImport("STB.dll", EntryPoint = "#101", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int STBClearFrameResults(IntPtr hSTB);
+        public static extern int STBClearFrameResults(IntPtr hSTB);
 
         [DllImport("STB.dll", EntryPoint = "#111", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int STBExecute(IntPtr hSTB);
+        public static extern int STBExecute(IntPtr hSTB);
 
         [DllImport("STB.dll", EntryPoint = "#112", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int STBGetFaces(IntPtr hSTB, ref uint punFaceCount, STBFace[] stface);
+        public static extern int STBGetFaces(IntPtr hSTB, ref uint punFaceCount, STBFace[] stface);
 
         [DllImport("STB.dll", EntryPoint = "#113", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int STBGetBodies(IntPtr hSTB, ref uint punBodyCount, STBBody[] stBody);
+        public static extern int STBGetBodies(IntPtr hSTB, ref uint punBodyCount, STBBody[] stBody);
 
         [DllImport("STB.dll", EntryPoint = "#301", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int STBSetTrRetryCount(IntPtr hSTB, int nMaxRetryCount);
+        public static extern int STBSetTrRetryCount(IntPtr hSTB, int nMaxRetryCount);
 
         [DllImport("STB.dll", EntryPoint = "#302", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int STBGetTrRetryCount(IntPtr hSTB, ref int pnMaxRetryCount);
+        public static extern int STBGetTrRetryCount(IntPtr hSTB, ref int pnMaxRetryCount);
 
         [DllImport("STB.dll", EntryPoint = "#303", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int STBSetTrSteadinessParam(IntPtr hSTB, int nPosSteadinessParam, int nSizeSteadinessParam);
+        public static extern int STBSetTrSteadinessParam(IntPtr hSTB, int nPosSteadinessParam, int nSizeSteadinessParam);
 
         [DllImport("STB.dll", EntryPoint = "#304", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int STBGetTrSteadinessParam(IntPtr hSTB, ref int pnPosSteadinessParam, ref int pnSizeSteadinessParam);
+        public static extern int STBGetTrSteadinessParam(IntPtr hSTB, ref int pnPosSteadinessParam, ref int pnSizeSteadinessParam);
 
         [DllImport("STB.dll", EntryPoint = "#401", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int STBSetPeThresholdUse(IntPtr hSTB, int nThreshold);
+        public static extern int STBSetPeThresholdUse(IntPtr hSTB, int nThreshold);
 
         [DllImport("STB.dll", EntryPoint = "#402", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int STBGetPeThresholdUse(IntPtr hSTB, ref int pnThreshold);
+        public static extern int STBGetPeThresholdUse(IntPtr hSTB, ref int pnThreshold);
 
         [DllImport("STB.dll", EntryPoint = "#403", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int STBSetPeAngleUse(IntPtr hSTB, int nMinUDAngle, int nMaxUDAngle, int nMinLRAngle, int nMaxLRAngle);
+        public static extern int STBSetPeAngleUse(IntPtr hSTB, int nMinUDAngle, int nMaxUDAngle, int nMinLRAngle, int nMaxLRAngle);
 
         [DllImport("STB.dll", EntryPoint = "#404", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int STBGetPeAngleUse(IntPtr hSTB, ref int pnMinUDAngle, ref int pnMaxUDAngle, ref int pnMinLRAngle, ref int pnMaxLRAngle);
+        public static extern int STBGetPeAngleUse(IntPtr hSTB, ref int pnMinUDAngle, ref int pnMaxUDAngle, ref int pnMinLRAngle, ref int pnMaxLRAngle);
 
         [DllImport("STB.dll", EntryPoint = "#405", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int STBSetPeCompleteFrameCount(IntPtr hSTB, int nFrameCount);
+        public static extern int STBSetPeCompleteFrameCount(IntPtr hSTB, int nFrameCount);
 
         [DllImport("STB.dll", EntryPoint = "#406", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int STBGetPeCompleteFrameCount(IntPtr hSTB, ref int pnFrameCount);
+        public static extern int STBGetPeCompleteFrameCount(IntPtr hSTB, ref int pnFrameCount);
 
         [DllImport("STB.dll", EntryPoint = "#501", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int STBSetFrThresholdUse(IntPtr hSTB, int nThreshold);
+        public static extern int STBSetFrThresholdUse(IntPtr hSTB, int nThreshold);
 
         [DllImport("STB.dll", EntryPoint = "#502", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int STBGetFrThresholdUse(IntPtr hSTB, ref int pnThreshold);
+        public static extern int STBGetFrThresholdUse(IntPtr hSTB, ref int pnThreshold);
 
         [DllImport("STB.dll", EntryPoint = "#503", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int STBSetFrAngleUse(IntPtr hSTB, int nMinUDAngle, int nMaxUDAngle, int nMinLRAngle, int nMaxLRAngle);
+        public static extern int STBSetFrAngleUse(IntPtr hSTB, int nMinUDAngle, int nMaxUDAngle, int nMinLRAngle, int nMaxLRAngle);
 
         [DllImport("STB.dll", EntryPoint = "#504", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int STBGetFrAngleUse(IntPtr hSTB, ref int pnMinUDAngle, ref int pnMaxUDAngle, ref int pnMinLRAngle, ref int pnMaxLRAngle);
+        public static extern int STBGetFrAngleUse(IntPtr hSTB, ref int pnMinUDAngle, ref int pnMaxUDAngle, ref int pnMinLRAngle, ref int pnMaxLRAngle);
 
         [DllImport("STB.dll", EntryPoint = "#505", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int STBSetFrCompleteFrameCount(IntPtr hSTB, int nFrameCount);
+        public static extern int STBSetFrCompleteFrameCount(IntPtr hSTB, int nFrameCount);
 
         [DllImport("STB.dll", EntryPoint = "#506", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int STBGetFrCompleteFrameCount(IntPtr hSTB, ref int pnFrameCount);
+        public static extern int STBGetFrCompleteFrameCount(IntPtr hSTB, ref int pnFrameCount);
 
         [DllImport("STB.dll", EntryPoint = "#507", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int STBSetFrMinRatio(IntPtr hSTB, int nMinRatio);
+        public static extern int STBSetFrMinRatio(IntPtr hSTB, int nMinRatio);
 
         [DllImport("STB.dll", EntryPoint = "#508", CallingConvention = CallingConvention.Cdecl)]
-        private static extern int STBGetFrMinRatio(IntPtr hSTB, ref int pnMinRatio);
+        public static extern int STBGetFrMinRatio(IntPtr hSTB, ref int pnMinRatio);
 
 
         static void Main(string[] args)
@@ -149,6 +150,14 @@ namespace DllImportTest
         public int nUD;
         public int nRoll;
         public int nConfidence;
+
+        public STBFrameResultDirection(byte[] data)
+        {
+            nLR = BitConverter.ToInt16(data, 0);
+            nUD = BitConverter.ToInt16(data, 2);
+            nRoll = BitConverter.ToInt16(data, 4);
+            nConfidence = BitConverter.ToInt16(data, 6);
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -156,6 +165,12 @@ namespace DllImportTest
     {
         public int nAge;
         public int nConfidence;
+
+        public STBFrameResultAge(byte[] data)
+        {
+            nAge = (sbyte)data[0];
+            nConfidence = BitConverter.ToInt16(data, 1);
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -163,6 +178,12 @@ namespace DllImportTest
     {
         public int nGender;
         public int nConfidence;
+
+        public STBFrameResultGender(byte[] data)
+        {
+            nGender = (sbyte)data[0];
+            nConfidence = BitConverter.ToInt16(data, 1);
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -170,6 +191,12 @@ namespace DllImportTest
     {
         public int nLR;
         public int nUD;
+
+        public STBFrameResultGaze(byte[] data)
+        {
+            nLR = (sbyte)data[0];
+            nUD = (sbyte)data[1];
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -177,13 +204,31 @@ namespace DllImportTest
     {
         public int nLeftEye;
         public int nRightEye;
+
+        public STBFrameResultBlink(byte[] data)
+        {
+            nLeftEye = BitConverter.ToInt16(data, 0);
+            nRightEye = BitConverter.ToInt16(data, 2);
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
     public class STBFrameResultExpression
     {
-        public int[] anScore = new int[(int) STBOkaoExpression.STBExpressionMax];
+        public int[] anScore;
         public int nDegree;
+
+        public STBFrameResultExpression(byte[] data)
+        {
+            anScore = new int[(int) STBOkaoExpression.STBExpressionMax];
+
+            anScore[(int)STBOkaoExpression.STBExpressionNeutral] = (sbyte)data[0];
+            anScore[(int)STBOkaoExpression.STBExpressionHappiness] = (sbyte)data[1];
+            anScore[(int)STBOkaoExpression.STBExpressionSurprise] = (sbyte)data[2];
+            anScore[(int)STBOkaoExpression.STBExpressionAnger] = (sbyte)data[3];
+            anScore[(int)STBOkaoExpression.STBExpressionSadness] = (sbyte)data[4];
+            nDegree = (sbyte)data[5];
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -191,6 +236,12 @@ namespace DllImportTest
     {
         public int nUID;
         public int nScore;
+
+        public STBFrameResultRecognition(byte[] data)
+        {
+            nUID = BitConverter.ToInt16(data, 0);
+            nScore = BitConverter.ToInt16(data, 2);
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -199,6 +250,14 @@ namespace DllImportTest
         public STBPoint center;
         public int nSize;
         public int nConfidence;
+
+        public STBFrameResultDetection(byte[] data)
+        {
+            center.nX = BitConverter.ToInt16(data, 0);
+            center.nY = BitConverter.ToInt16(data, 2);
+            nSize = BitConverter.ToInt16(data, 4);
+            nConfidence = BitConverter.ToInt16(data, 6);
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -214,20 +273,43 @@ namespace DllImportTest
         public STBFrameResultBlink blink;
         public STBFrameResultExpression expression;
         public STBFrameResultRecognition recognition;
+
+        public STBFrameResultFace(byte[] data)
+        {
+            center = new STBPoint()
+            {
+                nX = BitConverter.ToInt16(data, 0),
+                nY = BitConverter.ToInt16(data, 2)
+            };
+            nSize = BitConverter.ToInt16(data, 4);
+            nConfidence = BitConverter.ToInt16(data, 6);
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
     public class STBFrameResultBodies
     {
         public int nCount;
-        public STBFrameResultDetection[] bodies = new STBFrameResultDetection[35];
+        public STBFrameResultDetection[] bodies;
+
+        public STBFrameResultBodies()
+        {
+            nCount = 0;
+            bodies = new STBFrameResultDetection[35];
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
     public class STBFrameResultFaces
     {
         public int nCount;
-        public STBFrameResultFace[] faces = new STBFrameResultFace[35];
+        public STBFrameResultFace[] faces;
+
+        public STBFrameResultFaces()
+        {
+            nCount = 0;
+            faces = new STBFrameResultFace[35];
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -235,6 +317,12 @@ namespace DllImportTest
     {
         public STBFrameResultBodies bodies;
         public STBFrameResultFaces faces;
+
+        public STBFrameResult()
+        {
+            bodies = new STBFrameResultBodies();
+            faces = new STBFrameResultFaces();
+        }
     }
 
     //OUTPUT data structure

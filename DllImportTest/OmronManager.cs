@@ -8,21 +8,19 @@ namespace OmronOkaoSTBLib
 {
     public class OmronManager
     {
-        private byte[] _rawData;
-        private Color32[] _rawRGBColor;
-        private int _imageWidth;
-        private int _imageHeight;
+        private static int _imageWidth;
+        private static int _imageHeight;
 
-        private byte[] _dataPool = new byte[80000];
-        private int _receivedDataCount;
+        private static byte[] _dataPool = new byte[80000];
+        private static int _receivedDataCount;
 
-        private readonly byte[] _omronCmdHex =
+        private static readonly byte[] OmronCmdHex =
         {
             0x00, 0x01, 0x02, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a,
             0x0e, 0x10, 0x11, 0x12, 0x13, 0x15, 0x20, 0x21, 0x22, 0x30
         };
 
-        private readonly short[] _omronCmdSendDataLength =
+        private static readonly short[] OmronCmdSendDataLength =
         {
             0x0000, 0x0001, 0x0000, 0x0003, 0x0008, 0x0000, 0x000C, 0x0000,
             0x0002, 0x0000, 0x0001, 0x0003, 0x0003, 0x0002, 0x0000, 0x0002,
@@ -35,25 +33,25 @@ namespace OmronOkaoSTBLib
             SetFaceAngel, GetFaceAngle, SetUartSpeed, RegisterFace, DeleteFace, DeleteUserFace,
             DeleteAllFace, ReadUserFaceInfo, SaveAlbum, ReadAlbum, WriteAlbum, FormateRom
         }
-        public OmronCmd SelectedCmd;
+        public static OmronCmd SelectedCmd;
 
         public enum CameraDirection : byte
         {
             Deg0 = 0, Deg90, Deg180, Deg270
         }
-        public CameraDirection SelectedDirection;
+        private static CameraDirection _selectedDirection = CameraDirection.Deg0;
 
-        public short BodyThreshold = 500;
-        public short HandThreshold = 500;
-        public short FaceThreshold = 500;
-        public short FaceRecogThreshold = 500;
+        private static short BodyThreshold = 500;
+        private static short HandThreshold = 500;
+        private static short FaceThreshold = 500;
+        private static short FaceRecogThreshold = 500;
 
-        public short BodySizeMin = 30;
-        public short BodySizeMax = 8192;
-        public short HandSizeMin = 40;
-        public short HandSizeMax = 8192;
-        public short FaceSizeMin = 64;
-        public short FaceSizeMax = 8192;
+        private static short BodySizeMin = 30;
+        private static short BodySizeMax = 8192;
+        private static short HandSizeMin = 40;
+        private static short HandSizeMax = 8192;
+        private static short FaceSizeMin = 64;
+        private static short FaceSizeMax = 8192;
 
         public enum FaceDirYaw : byte
         {
@@ -63,24 +61,24 @@ namespace OmronOkaoSTBLib
         {
             Deg15 = 0x00, Deg45
         }
-        public FaceDirYaw SelectedFaceDirYaw = FaceDirYaw.Deg30;
-        public FaceDirRoll SelectedFaceDirRoll = FaceDirRoll.Deg15;
+        private static FaceDirYaw SelectedFaceDirYaw = FaceDirYaw.Deg30;
+        private static FaceDirRoll SelectedFaceDirRoll = FaceDirRoll.Deg15;
 
         public enum UartBPS : byte
         {
             S9600 = 0, S38400, S115200, S230400, S460800, S92600
         }
-        public UartBPS SelectedBPS = UartBPS.S9600;
+        private static UartBPS SelectedBps = UartBPS.S9600;
 
-        public short RegisterUserID;
-        public byte RegisterDataID;
+        private static short RegisterUserId;
+        private static byte RegisterDataId;
 
-        public short DeleteUserID;
-        public byte DeleterDataID;
+        private static short DeleteUserId;
+        private static byte DeleterDataId;
 
-        public short DeleteUserID1;
+        private static short DeleteUserId1;
 
-        public short ReadUserID;
+        private static short ReadUserId;
 
         [Flags]
         public enum ExecSetting1 : byte
@@ -89,14 +87,14 @@ namespace OmronOkaoSTBLib
             Age = 0x10, Gender = 0x20, Gaze = 0x40, Blink = 0x80, All = 0xFF
         }
 
-        public bool IsBodyChecked = false;
-        public bool IsHandChecked = false;
-        public bool IsFaceChecked = false;
-        public bool IsFaceDirChecked = false;
-        public bool IsAgeChecked = false;
-        public bool IsGenderChecked = false;
-        public bool IsGazeChecked = false;
-        public bool IsBlinkChecked = false;
+        private static bool IsBodyChecked = false;
+        private static bool IsHandChecked = false;
+        private static bool IsFaceChecked = true;
+        private static bool IsFaceDirChecked = true;
+        private static bool IsAgeChecked = false;
+        private static bool IsGenderChecked = false;
+        private static bool IsGazeChecked = true;
+        private static bool IsBlinkChecked = false;
 
         [Flags]
         public enum ExecSetting2 : byte
@@ -104,19 +102,19 @@ namespace OmronOkaoSTBLib
             None = 0x00, Emotion = 0x01, FaceRecog = 0x02
         }
 
-        public bool IsEmotionChecked = false;
-        public bool IsFaceRecogChecked = false;
+        private static bool IsEmotionChecked = false;
+        private static bool IsFaceRecogChecked = false;
 
         public enum ExecImageSetting : byte
         {
-            NoImage = 0x00, QVGA = 0x01, HalfQVGA = 0x02
+            NoImage = 0x00, Qvga = 0x01, HalfQvga = 0x02
         }
-        public ExecImageSetting ImageSetting;
+        private static ExecImageSetting ImageSetting;
 
-        private byte[] _currSettings = new byte[3];
+        private static byte[] _currSettings = new byte[3];
 
-        private bool _isImageReceived;
-        private bool _isFaceDirCreated;
+        private static bool _isImageReceived;
+        private static bool _isFaceDirCreated;
 
         [Flags]
         private enum CreateEventFlag : ushort
@@ -126,309 +124,140 @@ namespace OmronOkaoSTBLib
             IsEmotionCreated = 0x0100, IsFaceRecogCreated = 0x0200, IsImageCreated = 0x0400
         }
 
-        private CreateEventFlag _omronCameraCreateEventFlag;
+        private static CreateEventFlag _omronCameraCreateEventFlag;
 
-        private bool _isOmronCameraCreated = false;
-        private bool _isOnCreate = false;
+        private static bool _isOmronCameraCreated = false;
+        private static bool _isOnCreate = false;
 
-        public bool ContinuousMode;
-        private byte[] _prevCmdSequence;
+        private static bool ContinuousMode;
+        private static byte[] _prevCmdSequence;
 
         public float ConfigurationDistance = 1.0f;
         private const float WideAngleHeightRange = 76.0f;
         private const float WideAngleWidthRange = 94.0f;
 
-        public double _validRangeHeight
+        public double ValidRangeHeight
         {
             get { return Math.Tan(WideAngleHeightRange / 2.0f) * ConfigurationDistance * 2.0f; }
         }
-        public double _validRangeWidth
+        public double ValidRangeWidth
         {
             get { return Math.Tan(WideAngleWidthRange / 2.0f) * ConfigurationDistance * 2.0f; }
         }
-        public double _validScaleHeight
+        public double ValidScaleHeight
         {
-            get { return _validRangeHeight / 1600.0f; }
+            get { return ValidRangeHeight / 1600.0f; }
         }
-        public double _validScaleWidth
+        public double ValidScaleWidth
         {
-            get { return _validRangeWidth / 1200.0f; }
+            get { return ValidRangeWidth / 1200.0f; }
         }
 
-        static void Main(string[] args)
+        private static OmronCamera _camera1;
+
+        private static bool _nextFlag = false;
+
+        private static void Main(string[] args)
         {
             Console.Write("System has started.\r\nPlease input serial port name:");
             string portName = Console.ReadLine();
 
-            SerialHandler serialPort = new SerialHandler(portName);
+            SerialHandler.CreateSerialHandler(portName);
 
-            serialPort.OnDataPush += SerialHandlerComponentOnDataPush;
+            SerialHandler.OnDataPush += SerialHandlerOnDataPush;
+            SerialHandler.OnSerialThreadingStopped += SerialHandlerOnSerialThreadingStopped;
+            //SerialHandlerComponent.OnPrepared += SerialHandlerComponentOnOnPrepared;
+            IntPtr stbHandle = STBLib.STBCreateHandle((uint)STBExecFlag.FaceTracking);
+
+            while (true)
+            {
+                //                SendCommand(OmronCmd.Version);
+                SendCommand(OmronCmd.Exec);
+                while (!_nextFlag) { }
+                _nextFlag = false;
+                STBFrameResult result = new STBFrameResult();
+                Console.WriteLine("Set Result: {0}", STBLib.STBSetFrameResult(stbHandle, ref _camera1.FrameResult));
+                Console.WriteLine("Excute: {0}", STBLib.STBExecute(stbHandle));
+                uint nCount = 0;
+                STBFace[] faces = new STBFace[35];
+                Console.WriteLine("Get Face Cmd: {0}", STBLib.STBGetFaces(stbHandle, ref nCount, faces));
+                Console.WriteLine("Stablized Face Count: {0}", nCount);
+            }
+            //Create Handle
+            //Set parameters
+
+            //Set frame result
+            
+            //STBSetFrameResult(stbHandle, )
 
         }
 
-        // Use this for initialization
-        void Start()
-        {
-            _canvas = GameObject.Find("Canvas");
-            _omronCamera = GameObject.Find("OmronCamera");
 
-            _bodyGameObjects = new List<GameObject>();
-            _handGameObjects = new List<GameObject>();
-            _faceGameObjects = new List<GameObject>();
+        //        private static void SerialHandlerComponentOnOnPrepared()
+        //        {
+        //            //        Console.WriteLine("New command request.");
+        //            SendCommand();
+        //        }
 
-            SerialHandlerComponent.OnDataPush += SerialHandlerComponentOnDataPush;
-            SerialHandlerComponent.OnSerialThreadingStopped += SerialHandlerComponentOnOnSerialThreadingStopped;
-            SerialHandlerComponent.OnPrepared += SerialHandlerComponentOnOnPrepared;
-        }
-
-        private void SerialHandlerComponentOnOnPrepared()
-        {
-            //        Debug.LogFormat("New command request.");
-            SendCommand();
-        }
-
-        private void SerialHandlerComponentOnOnSerialThreadingStopped()
+        private static void SerialHandlerOnSerialThreadingStopped()
         {
             _dataPool = new byte[80000];
             _receivedDataCount = 0;
-            //        Debug.LogFormat("Clear data pool.");
+
+            _nextFlag = true;
+            //        Console.WriteLine("Clear data pool.");
         }
 
-        private int SerialHandlerComponentOnDataPush(byte[] dataStream)
+        private static int SerialHandlerOnDataPush(byte[] dataStream)
         {
-            //        Debug.Log("DataPushed event has been invoked.");
-
             Array.Copy(dataStream, 0, _dataPool, _receivedDataCount, dataStream.Length);
             _receivedDataCount += dataStream.Length;
 
-            if (_receivedDataCount > 6)
+            int resCode = ResponseParser(SelectedCmd, _dataPool.Take(_receivedDataCount).ToArray());
+
+            switch (resCode)
             {
-                //            Debug.LogFormat("Total Counts: {0}", _receivedDataCount);
-                int resCode = ResponseParser(SelectedCmd, _dataPool.Take(_receivedDataCount).ToArray());
-
-                switch (resCode)
-                {
-                    case -1:
-                        //TODO: fire an event of OnTerminate. (Replace OnFinished.)
-                        Debug.Log("Invalid data received.\nTerminated!");
-                        return -1;
-                    case 0:
-                        //                    Debug.Log("Received data package is incompleted.\nWaiting for the next.");
-                        return 0;
-                    case 1:
-                        Debug.LogFormat("Completed!");
-                        return 1;
-                }
-            }
-
-            return 0;
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-            //TODO: Game object creating function
-            if (_isOnCreate && !_isOmronCameraCreated)
-            {
-                //            Debug.LogFormat("Omron Camera Objects are creating.");
-
-                foreach (var body in Camera1.Bodies)
-                {
-                    GameObject tmpGameObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    tmpGameObject.name = string.Format("Body[{0}]", Guid.NewGuid());
-                    tmpGameObject.transform.position = new Vector3(body.CoordinateX, body.CoordinateY, ConfigurationDistance);
-
-                    _bodyGameObjects.Add(tmpGameObject);
-                }
-
-                foreach (var hand in Camera1.Hands)
-                {
-                    GameObject tmpGameObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    tmpGameObject.name = string.Format("Hand[{0}]", Guid.NewGuid());
-                    tmpGameObject.transform.position = new Vector3(hand.CoordinateX, hand.CoordinateY, ConfigurationDistance);
-
-                    _handGameObjects.Add(tmpGameObject);
-                }
-
-                //TODO: Adjust the Quaternion to Unity coordinate.
-                foreach (var face in Camera1.Faces)
-                {
-                    GameObject tmpGameObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    string id = string.Format("[{0}]", Guid.NewGuid());
-
-                    tmpGameObject.name = string.Format("Face{0}", id);
-                    //                tmpGameObject.transform.localPosition = new Vector3(0.0f, 0.0f, 0.0f);
-                    //                tmpGameObject.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-                    tmpGameObject.transform.parent = GameObject.Find("OmronCamera").transform;
-                    tmpGameObject.transform.localPosition = new Vector3(face.LocalPosition.x * (float)_validScaleWidth
-                        , face.LocalPosition.y * (float)_validScaleHeight, -ConfigurationDistance);
-                    tmpGameObject.transform.localRotation = face.FaceDir.FaceDirRotation;
-                    var boxCollider = tmpGameObject.GetComponent<BoxCollider>();
-                    boxCollider.size = new Vector3(0.1f, 0.15f, 0.1f);
-                    tmpGameObject.GetComponent<MeshRenderer>().enabled = false;
-
-                    DrawLocalCoordinate(_omronCamera, tmpGameObject);
-                    DrawGazeVector(_omronCamera, tmpGameObject, face.Gaze.GazeVector);
-                    //TODO: Add other functions.
-
-                    _faceGameObjects.Add(tmpGameObject);
-                }
-
-                if (Camera1.Image != null)
-                    SetImageFormat(Camera1.Image);
-
-                _isOmronCameraCreated = true;
-                _isOnCreate = false;
-            }
-
-            else if (_isOnCreate && _isOmronCameraCreated)
-            {
-                //            Debug.LogFormat("Game Objects are deleting.");
-
-                foreach (var face in _faceGameObjects)
-                {
-                    Destroy(face);
-                    _faceGameObjects = new List<GameObject>();
-                }
-
-                if (_debugImageGameObject != null)
-                    Destroy(_debugImageGameObject);
-
-                _isOmronCameraCreated = false;
-            }
-
-        }
-
-        private void SetImageFormat(OmronCameraImage image)
-        {
-            _debugImageGameObject = new GameObject("ImageForDebug");
-            _debugImageGameObject.AddComponent<RawImage>();
-            RawImage debugRawImage = _debugImageGameObject.GetComponent<RawImage>();
-
-            _debugImageGameObject.transform.SetParent(_canvas.transform);
-            debugRawImage.rectTransform.sizeDelta = new Vector2(1600.0f, 1200.0f);
-            debugRawImage.rectTransform.transform.localPosition = Vector3.zero;
-            debugRawImage.rectTransform.transform.localScale = Vector3.one * 0.4f;
-
-            switch (SelectedDirection)
-            {
-                case CameraDirection.Deg0:
-                    debugRawImage.transform.rotation = Quaternion.Euler(0, 0, 0);
-                    break;
-                case CameraDirection.Deg90:
-                    debugRawImage.transform.rotation = Quaternion.Euler(0, 0, 90);
-                    break;
-                case CameraDirection.Deg180:
-                    debugRawImage.transform.rotation = Quaternion.Euler(0, 0, 180);
-                    break;
-                case CameraDirection.Deg270:
-                    debugRawImage.transform.rotation = Quaternion.Euler(0, 0, 270);
-                    break;
+                case -1:
+                    //TODO: fire an event of OnTerminate. (Replace OnFinished.)
+                    Console.WriteLine("Invalid data received.\nTerminated!");
+                    return -1;
+                case 0:
+                    //                    Console.WriteLine("Received data package is incompleted.\nWaiting for the next.");
+                    return 0;
+                case 1:
+                    Console.WriteLine("Completed!");
+                    return 1;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    return -1;
             }
-
-            _imageTexture = new Texture2D(image.Width, image.Height, TextureFormat.RGB24, false);
-            //        Debug.LogFormat("Image Texture: {0} * {1}", _imageTexture.width, _imageTexture.height);
-            //        Debug.LogFormat("Image : {0}", image.ImageRGBColor32.Length);
-            debugRawImage.texture = _imageTexture;
-
-            _imageTexture.SetPixels32(image.ImageRGBColor32);
-            _imageTexture.Apply();
         }
 
-        private GameObject DrawLine(string lineName, Vector3 start, Vector3 end, Color color)
+
+        private static void SendCommand(OmronCmd selectedCmd)
         {
-            //        Debug.LogFormat("Draw a line.");
-            GameObject myLine = new GameObject(lineName);
-            myLine.transform.localPosition = start;
-            myLine.AddComponent<LineRenderer>();
-            LineRenderer lr = myLine.GetComponent<LineRenderer>();
-            lr.material = new Material(Shader.Find("Particles/Alpha Blended Premultiply"));
-            lr.useWorldSpace = false;
+            byte[] cmdSeq = CmdFormatter(selectedCmd, OmronCmdSendDataLength[(int)selectedCmd]);
+            SelectedCmd = selectedCmd;
 
-            lr.startColor = color;
-            lr.endColor = color;
-
-            lr.startWidth = 0.005f;
-            lr.endWidth = 0.005f;
-
-            lr.SetPosition(0, start);
-            lr.SetPosition(1, end);
-
-            return myLine;
+            SerialHandler.SendMessage(cmdSeq);
+            SerialHandler.StartSerialReadingThread();
         }
 
-        private void DrawLocalCoordinate(GameObject targetGameObject, GameObject parentGameObject)
-        {
-            //        Debug.LogFormat("Draw a local coordinate for target object.");
-
-            Color[] coordinateColors = { Color.red, Color.green, Color.blue };
-
-            //        Debug.LogFormat("Parent Position: {0}", parentPos);
-            //        Debug.LogFormat("Parent Rotation: {0}", parentRot);
-
-            GameObject coorX = DrawLine("CoorX", new Vector3(0.0f, 0.0f, 0.0f), Vector3.right * 0.2f,
-                coordinateColors[0]);
-            GameObject coorY = DrawLine("CoorY", new Vector3(0.0f, 0.0f, 0.0f), Vector3.up * 0.2f,
-                coordinateColors[1]);
-            GameObject coorZ = DrawLine("CoorZ", new Vector3(0.0f, 0.0f, 0.0f), Vector3.forward * 0.2f,
-                coordinateColors[2]);
-
-            coorX.transform.parent = parentGameObject.transform;
-            coorX.GetComponent<LineRenderer>().transform.localPosition = Vector3.zero;
-            //        coorX.GetComponent<LineRenderer>().transform.localPosition = targetGameObject.transform.localPosition;
-            coorX.GetComponent<LineRenderer>().transform.localRotation = Quaternion.Euler(Vector3.zero);
-
-            coorY.transform.parent = parentGameObject.transform;
-            coorY.GetComponent<LineRenderer>().transform.localPosition = Vector3.zero;
-            //        coorY.GetComponent<LineRenderer>().transform.localPosition = targetGameObject.transform.localPosition;
-            coorY.GetComponent<LineRenderer>().transform.localRotation = Quaternion.Euler(Vector3.zero);
-
-            coorZ.transform.parent = parentGameObject.transform;
-            coorZ.GetComponent<LineRenderer>().transform.localPosition = Vector3.zero;
-            //        coorZ.GetComponent<LineRenderer>().transform.localPosition = targetGameObject.transform.localPosition;
-            coorZ.GetComponent<LineRenderer>().transform.localRotation = Quaternion.Euler(Vector3.zero);
-        }
-
-        private void DrawGazeVector(GameObject targetGameObject, GameObject parentGameObject, Quaternion targetVector)
-        {
-            //        Debug.LogFormat("Draw an eye gaze vector for target object.");
-
-            GameObject gazeVector = DrawLine("GazeVector", Vector3.zero, Vector3.forward * 2.0f, Color.yellow);
-
-            gazeVector.transform.parent = parentGameObject.transform;
-            gazeVector.GetComponent<LineRenderer>().transform.localPosition = Vector3.zero;
-            //        gazeVector.GetComponent<LineRenderer>().transform.localPosition = targetGameObject.transform.localPosition;
-            //gazeVector.GetComponent<LineRenderer>().transform.localRotation = targetVector;
-            gazeVector.GetComponent<LineRenderer>().transform.localRotation = targetVector
-                                                                              * (Quaternion.Euler(-parentGameObject.transform.localRotation.eulerAngles.x, -parentGameObject.transform.localRotation.eulerAngles.y, -parentGameObject.transform.localRotation.eulerAngles.z));
-        }
-
-        public void SendCommand()
-        {
-            byte[] cmd = CmdFormatter(SelectedCmd, _omronCmdSendDataLength[(int)SelectedCmd]);
-
-            SerialHandlerComponent.SendMessage(cmd);
-            SerialHandlerComponent.StartThread(ContinuousMode);
-        }
-
-        private byte[] CmdFormatter(OmronCmd cmd, int dataLength)
+        private static byte[] CmdFormatter(OmronCmd cmd, int dataLength)
         {
             byte[] tmpCmdBuffer = new byte[4 + dataLength];
 
             //Data format: 0xFE CMD LSB MSB
             tmpCmdBuffer[0] = 0xFE;
-            tmpCmdBuffer[1] = _omronCmdHex[(int)cmd];
+            tmpCmdBuffer[1] = OmronCmdHex[(int)cmd];
             tmpCmdBuffer[2] = (byte)(dataLength % 256);
             tmpCmdBuffer[3] = (byte)(dataLength / 256);
 
-            //Debug.Log(tmpCmdBuffer.ToString());
+            //Console.WriteLine(tmpCmdBuffer.ToString());
 
             switch (cmd)
             {
                 case OmronCmd.SetCamDir:
-                    tmpCmdBuffer[4] = (byte)SelectedDirection;
+                    tmpCmdBuffer[4] = (byte)_selectedDirection;
                     break;
                 case OmronCmd.Exec:
                     _currSettings = ExecCmdFormatter();
@@ -445,40 +274,40 @@ namespace OmronOkaoSTBLib
                     tmpCmdBuffer[5] = (byte)SelectedFaceDirRoll;
                     break;
                 case OmronCmd.SetUartSpeed:
-                    tmpCmdBuffer[4] = (byte)SelectedBPS;
+                    tmpCmdBuffer[4] = (byte)SelectedBps;
                     break;
                 case OmronCmd.RegisterFace:
-                    tmpCmdBuffer[4] = (byte)(RegisterUserID % 256);
-                    tmpCmdBuffer[5] = (byte)(RegisterUserID / 256);
-                    tmpCmdBuffer[6] = RegisterDataID;
+                    tmpCmdBuffer[4] = (byte)(RegisterUserId % 256);
+                    tmpCmdBuffer[5] = (byte)(RegisterUserId / 256);
+                    tmpCmdBuffer[6] = RegisterDataId;
                     break;
                 case OmronCmd.DeleteFace:
-                    tmpCmdBuffer[4] = (byte)(DeleteUserID % 256);
-                    tmpCmdBuffer[5] = (byte)(DeleteUserID / 256);
-                    tmpCmdBuffer[6] = DeleterDataID;
+                    tmpCmdBuffer[4] = (byte)(DeleteUserId % 256);
+                    tmpCmdBuffer[5] = (byte)(DeleteUserId / 256);
+                    tmpCmdBuffer[6] = DeleterDataId;
                     break;
                 case OmronCmd.DeleteUserFace:
-                    tmpCmdBuffer[4] = (byte)(DeleteUserID1 % 256);
-                    tmpCmdBuffer[5] = (byte)(DeleteUserID1 / 256);
+                    tmpCmdBuffer[4] = (byte)(DeleteUserId1 % 256);
+                    tmpCmdBuffer[5] = (byte)(DeleteUserId1 / 256);
                     break;
                 case OmronCmd.ReadUserFaceInfo:
-                    tmpCmdBuffer[4] = (byte)(ReadUserID % 256);
-                    tmpCmdBuffer[5] = (byte)(ReadUserID / 256);
+                    tmpCmdBuffer[4] = (byte)(ReadUserId % 256);
+                    tmpCmdBuffer[5] = (byte)(ReadUserId / 256);
                     break;
                 case OmronCmd.ReadAlbum:
                     //TODO: Read albums from host and write it into device.
                     break;
                 default:
-                    Debug.LogFormat("Command only. No data sending.");
+                    Console.WriteLine("Command only. No data sending.");
                     break;
             }
 
-            Debug.Log("Omron Command: " + BitConverter.ToString(tmpCmdBuffer));
+            Console.WriteLine("Omron Command: " + BitConverter.ToString(tmpCmdBuffer));
 
             return tmpCmdBuffer;
         }
 
-        private byte[] ExecCmdFormatter()
+        private static byte[] ExecCmdFormatter()
         {
             byte[] setting = new byte[3];
 
@@ -490,22 +319,22 @@ namespace OmronOkaoSTBLib
             if (IsGenderChecked) setting[0] |= (byte)ExecSetting1.Gender;
             if (IsGazeChecked) setting[0] |= (byte)ExecSetting1.Gaze;
             if (IsBlinkChecked) setting[0] |= (byte)ExecSetting1.Blink;
-            //        Debug.Log("Execute setting 1: " + Convert.ToString(setting[0], 2));
+            //        Console.WriteLine("Execute setting 1: " + Convert.ToString(setting[0], 2));
 
             if (IsEmotionChecked) setting[1] |= (byte)ExecSetting2.Emotion;
             if (IsFaceRecogChecked) setting[1] |= (byte)ExecSetting2.FaceRecog;
-            //        Debug.Log("Execute setting 2: " + Convert.ToString(setting[1], 2));
+            //        Console.WriteLine("Execute setting 2: " + Convert.ToString(setting[1], 2));
 
             setting[2] = (byte)ImageSetting;
-            //        Debug.Log("Execute image setting: " + ImageSetting);
+            //        Console.WriteLine("Execute image setting: " + ImageSetting);
 
             switch (ImageSetting)
             {
-                case ExecImageSetting.HalfQVGA:
+                case ExecImageSetting.HalfQvga:
                     _imageWidth = 160;
                     _imageHeight = 120;
                     break;
-                case ExecImageSetting.QVGA:
+                case ExecImageSetting.Qvga:
                     _imageWidth = 320;
                     _imageHeight = 240;
                     break;
@@ -518,7 +347,7 @@ namespace OmronOkaoSTBLib
             return setting;
         }
 
-        private byte[] SetThresholdCmdFormatter()
+        private static byte[] SetThresholdCmdFormatter()
         {
             byte[] output = new byte[8];
 
@@ -534,7 +363,7 @@ namespace OmronOkaoSTBLib
             return output;
         }
 
-        private byte[] SetSizeCmdFormatter()
+        private static byte[] SetSizeCmdFormatter()
         {
             byte[] output = new byte[12];
 
@@ -555,7 +384,7 @@ namespace OmronOkaoSTBLib
         }
 
 
-        private int ResponseParser(OmronCmd cmd, byte[] dataStream)
+        private static int ResponseParser(OmronCmd cmd, byte[] dataStream)
         {
             byte syncCode = dataStream[0];
             if (syncCode != 0xFE) return -1;
@@ -568,8 +397,6 @@ namespace OmronOkaoSTBLib
 
             byte[] validData = new byte[dataLength];
             Array.Copy(dataStream, 6, validData, 0, dataLength);
-            //        Debug.Log("Valid data length: " + dataLength);
-            //        Debug.Log("Full data package: " + BitConverter.ToString(dataStream.Take(dataLength + 6).ToArray()));
 
             switch (cmd)
             {
@@ -626,56 +453,56 @@ namespace OmronOkaoSTBLib
             return 1;
         }
 
-        private void CmdVersionHandler(byte[] data)
+        private static void CmdVersionHandler(byte[] data)
         {
             string versionInfo = Encoding.UTF8.GetString(data.Take(12).ToArray()) +
                                  data[12] + "." + data[13] + "." + data[14] + "." + BitConverter.ToUInt32(data, 15);
 
-            Debug.Log("Version Info: " + versionInfo);
+            Console.WriteLine("Version Info: " + versionInfo);
         }
 
-        private void CmdExecHandler(byte[] data)
+        private static void CmdExecHandler(byte[] data)
         {
             //TODO: Still have some problems after changing the image size to zero.
             _isOnCreate = false;
-            Camera1 = new OmronCameraComponent(data, _currSettings);
+            _camera1 = new OmronCamera(data, _currSettings);
 
             _isOnCreate = true;
         }
 
-        private void CmdGetCamDirHandler(byte[] data)
+        private static void CmdGetCamDirHandler(byte[] data)
         {
             switch ((CameraDirection)data[0])
             {
                 case CameraDirection.Deg0:
-                    SelectedDirection = CameraDirection.Deg0;
+                    _selectedDirection = CameraDirection.Deg0;
                     break;
                 case CameraDirection.Deg90:
-                    SelectedDirection = CameraDirection.Deg90;
+                    _selectedDirection = CameraDirection.Deg90;
                     break;
                 case CameraDirection.Deg180:
-                    SelectedDirection = CameraDirection.Deg180;
+                    _selectedDirection = CameraDirection.Deg180;
                     break;
                 case CameraDirection.Deg270:
-                    SelectedDirection = CameraDirection.Deg270;
+                    _selectedDirection = CameraDirection.Deg270;
                     break;
             }
 
-            Debug.LogFormat("Current direction setting: {0}", SelectedDirection);
+            Console.WriteLine("Current direction setting: {0}", _selectedDirection);
         }
 
-        private void CmdGetThresholdHandler(byte[] data)
+        private static void CmdGetThresholdHandler(byte[] data)
         {
             BodyThreshold = BitConverter.ToInt16(data, 0);
             HandThreshold = BitConverter.ToInt16(data, 2);
             FaceThreshold = BitConverter.ToInt16(data, 4);
             FaceRecogThreshold = BitConverter.ToInt16(data, 6);
 
-            Debug.LogFormat("Current Threshold Value - Body: {0}, Hand: {1}, Face: {2}, FaceRecog: {3}"
+            Console.WriteLine("Current Threshold Value - Body: {0}, Hand: {1}, Face: {2}, FaceRecog: {3}"
                 , BodyThreshold, HandThreshold, FaceThreshold, FaceRecogThreshold);
         }
 
-        private void CmdGetSizeHandler(byte[] data)
+        private static void CmdGetSizeHandler(byte[] data)
         {
             BodySizeMin = BitConverter.ToInt16(data, 0);
             BodySizeMax = BitConverter.ToInt16(data, 2);
@@ -684,20 +511,16 @@ namespace OmronOkaoSTBLib
             FaceSizeMin = BitConverter.ToInt16(data, 8);
             FaceSizeMax = BitConverter.ToInt16(data, 10);
 
-            Debug.LogFormat("Current Size Value - Body Min.: {0}, Body Max.: {1}, Hand Min.: {2}, Hand Max.: {3}, Face Min.: {4}, Face Max.: {5}"
+            Console.WriteLine("Current Size Value - Body Min.: {0}, Body Max.: {1}, Hand Min.: {2}, Hand Max.: {3}, Face Min.: {4}, Face Max.: {5}"
                 , BodySizeMin, BodySizeMax, HandSizeMin, HandSizeMax, FaceSizeMin, FaceSizeMax);
         }
 
-        private void CmdGetFaceAngleHandler(byte[] data)
+        private static void CmdGetFaceAngleHandler(byte[] data)
         {
             SelectedFaceDirYaw = (FaceDirYaw)data[0];
             SelectedFaceDirRoll = (FaceDirRoll)data[1];
 
-            Debug.LogFormat("Face Direction Setting - Yaw: {0}, Roll: {1}", SelectedFaceDirYaw, SelectedFaceDirRoll);
+            Console.WriteLine("Face Direction Setting - Yaw: {0}, Roll: {1}", SelectedFaceDirYaw, SelectedFaceDirRoll);
         }
     }
-
-
-
-
 }
