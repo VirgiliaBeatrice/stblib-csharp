@@ -157,7 +157,13 @@ namespace OmronOkaoSTBLib
 
         static void Main(string[] args)
         {
-            SerialHandler serialPort = new SerialHandler();
+            Console.Write("System has started.\r\nPlease input serial port name:");
+            string portName = Console.ReadLine();
+
+            SerialHandler serialPort = new SerialHandler(portName);
+
+            serialPort.OnDataPush += SerialHandlerComponentOnDataPush;
+
         }
 
         // Use this for initialization
