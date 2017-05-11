@@ -167,21 +167,31 @@ namespace OmronOkaoSTBLib
             SerialHandler.OnDataPush += SerialHandlerOnDataPush;
             SerialHandler.OnSerialThreadingStopped += SerialHandlerOnSerialThreadingStopped;
             //SerialHandlerComponent.OnPrepared += SerialHandlerComponentOnOnPrepared;
-            IntPtr stbHandle = STBLib.STBCreateHandle((uint)STBExecFlag.FaceTracking);
+            IntPtr stbHandle = new IntPtr();
+            stbHandle = STBLib.STBCreateHandle((uint)STBExecFlag.FaceTracking);
+            STBFace[] faces = new STBFace[35];
 
             while (true)
             {
-                //                SendCommand(OmronCmd.Version);
                 SendCommand(OmronCmd.Exec);
                 while (!_nextFlag) { }
                 _nextFlag = false;
-                STBFrameResult result = new STBFrameResult();
                 Console.WriteLine("Set Result: {0}", STBLib.STBSetFrameResult(stbHandle, ref _camera1.FrameResult));
                 Console.WriteLine("Excute: {0}", STBLib.STBExecute(stbHandle));
                 uint nCount = 0;
-                STBFace[] faces = new STBFace[35];
                 Console.WriteLine("Get Face Cmd: {0}", STBLib.STBGetFaces(stbHandle, ref nCount, faces));
+
+                for (int i = 0; i < nCount; i++)
+                {
+                    var face = faces[i];
+
+                    if (!face.Equals(null))
+                    {
+                        Console.WriteLine("DetectingID: {0}, TrackingID: {1}, Position: {2}.{3}", face.nDetectID, face.nTrackingID, face.center.x, face.center.y);
+                    }
+                }
                 Console.WriteLine("Stablized Face Count: {0}", nCount);
+                Console.WriteLine();
             }
             //Create Handle
             //Set parameters

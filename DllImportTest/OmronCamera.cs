@@ -187,10 +187,18 @@ namespace OmronOkaoSTBLib
         public List<OmronCameraHand> Hands = new List<OmronCameraHand>();
 //        public OmronCameraImage Image;
 
-        public STBFrameResult FrameResult = new STBFrameResult();
+        public STBFrameResult FrameResult;
 
         public OmronCamera(byte[] data, byte[] settings)
         {
+            FrameResult = new STBFrameResult()
+            {
+                bodies = new STBFrameResultBodies(),
+                faces = new STBFrameResultFaces()
+            };
+
+            FrameResult.bodies.bodies = new STBFrameResultDetection[35];
+            FrameResult.faces.faces = new STBFrameResultFace[35];
             RawData = data;
 
             FrameResult.bodies.nCount = (sbyte)RawData[0];
@@ -202,8 +210,10 @@ namespace OmronOkaoSTBLib
 
             for (int i = 0; i < FrameResult.bodies.nCount; i++)
             {
-                FrameResult.bodies.bodies[i] =
-                    new STBFrameResultDetection(data.Skip(ptrIndex).Take(8).ToArray());
+                ResultParser.ResultDetectionParser(data.Skip(ptrIndex).Take(8).ToArray(),
+                    ref FrameResult.bodies.bodies[i]);
+//                FrameResult.bodies.bodies[i] =
+//                    new STBFrameResultDetection(data.Skip(ptrIndex).Take(8).ToArray());
                 ptrIndex += 8;
             }
 
@@ -217,57 +227,65 @@ namespace OmronOkaoSTBLib
             {
                 if ((settings[0] & (byte)OmronManager.ExecSetting1.Face) != 0x00)
                 {
-                    FrameResult.faces.faces[i] = 
-                        new STBFrameResultFace(data.Skip(ptrIndex).Take(8).ToArray());
+                    ResultParser.ResultFaceParser(data.Skip(ptrIndex).Take(8).ToArray(), ref FrameResult.faces.faces[i]);
+//                    FrameResult.faces.faces[i] = 
+//                        new STBFrameResultFace(data.Skip(ptrIndex).Take(8).ToArray());
                     ptrIndex += 8;
                 }
 
                 if ((settings[0] & (byte)OmronManager.ExecSetting1.FaceDir) != 0x00)
                 {
-                    FrameResult.faces.faces[i].direction = 
-                        new STBFrameResultDirection(data.Skip(ptrIndex).Take(8).ToArray());
+                    ResultParser.ResultDirectionParser(data.Skip(ptrIndex).Take(8).ToArray(), ref FrameResult.faces.faces[i].direction);
+//                    FrameResult.faces.faces[i].direction = 
+//                        new STBFrameResultDirection(data.Skip(ptrIndex).Take(8).ToArray());
                     ptrIndex += 8;
                 }
 
                 if ((settings[0] & (byte)OmronManager.ExecSetting1.Age) != 0x00)
                 {
-                    FrameResult.faces.faces[i].age =
-                        new STBFrameResultAge(data.Skip(ptrIndex).Take(3).ToArray());
+                    ResultParser.ResultAgeParser(data.Skip(ptrIndex).Take(3).ToArray(), ref FrameResult.faces.faces[i].age);
+//                    FrameResult.faces.faces[i].age =
+//                        new STBFrameResultAge(data.Skip(ptrIndex).Take(3).ToArray());
                     ptrIndex += 3;
                 }
 
                 if ((settings[0] & (byte)OmronManager.ExecSetting1.Gender) != 0x00)
                 {
-                    FrameResult.faces.faces[i].gender = 
-                        new STBFrameResultGender(data.Skip(ptrIndex).Take(3).ToArray());
+                    ResultParser.ResultGenderParser(data.Skip(ptrIndex).Take(3).ToArray(), ref FrameResult.faces.faces[i].gender);
+//                    FrameResult.faces.faces[i].gender = 
+//                        new STBFrameResultGender(data.Skip(ptrIndex).Take(3).ToArray());
                     ptrIndex += 3;
                 }
 
                 if ((settings[0] & (byte)OmronManager.ExecSetting1.Gaze) != 0x00)
                 {
-                    FrameResult.faces.faces[i].gaze = 
-                        new STBFrameResultGaze(data.Skip(ptrIndex).Take(2).ToArray());
+                    ResultParser.ResultGazeParser(data.Skip(ptrIndex).Take(2).ToArray(), ref FrameResult.faces.faces[i].gaze);
+//                    FrameResult.faces.faces[i].gaze = 
+//                        new STBFrameResultGaze(data.Skip(ptrIndex).Take(2).ToArray());
                     ptrIndex += 2;
                 }
 
                 if ((settings[0] & (byte)OmronManager.ExecSetting1.Blink) != 0x00)
                 {
-                    FrameResult.faces.faces[i].blink = 
-                        new STBFrameResultBlink(data.Skip(ptrIndex).Take(4).ToArray());
+                    ResultParser.ResultBlinkParser(data.Skip(ptrIndex).Take(4).ToArray(), ref FrameResult.faces.faces[i].blink);
+//                    FrameResult.faces.faces[i].blink = 
+//                        new STBFrameResultBlink(data.Skip(ptrIndex).Take(4).ToArray());
                     ptrIndex += 4;
                 }
 
                 if ((settings[1] & (byte)OmronManager.ExecSetting2.Emotion) != 0x00)
                 {
-                    FrameResult.faces.faces[i].expression = 
-                        new STBFrameResultExpression(data.Skip(ptrIndex).Take(6).ToArray());
+                    ResultParser.ResultExpressionParser(data.Skip(ptrIndex).Take(6).ToArray(),  ref FrameResult.faces.faces[i].expression);
+//                    FrameResult.faces.faces[i].expression = 
+//                        new STBFrameResultExpression(data.Skip(ptrIndex).Take(6).ToArray());
                     ptrIndex += 6;
                 }
 
                 if ((settings[1] & (byte)OmronManager.ExecSetting2.FaceRecog) != 0x00)
                 {
-                    FrameResult.faces.faces[i].recognition = 
-                        new STBFrameResultRecognition(data.Skip(ptrIndex).Take(4).ToArray());
+                    ResultParser.ResultRecognitionParser(data.Skip(ptrIndex).Take(4).ToArray(), ref FrameResult.faces.faces[i].recognition);
+//                    FrameResult.faces.faces[i].recognition = 
+//                        new STBFrameResultRecognition(data.Skip(ptrIndex).Take(4).ToArray());
                     ptrIndex += 4;
                 }
             }
