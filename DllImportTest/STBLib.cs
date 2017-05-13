@@ -25,7 +25,8 @@ namespace OmronOkaoSTBLib
         public static extern int STBExecute(IntPtr hSTB);
 
         [DllImport("STB.dll", EntryPoint = "#112", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int STBGetFaces(IntPtr hSTB, ref uint punFaceCount, STBFace[] stface);
+        public static extern int STBGetFaces(IntPtr hSTB, ref uint punFaceCount,
+            [Out] STBFace[] stface);
 
         [DllImport("STB.dll", EntryPoint = "#113", CallingConvention = CallingConvention.Cdecl)]
         public static extern int STBGetBodies(IntPtr hSTB, ref uint punBodyCount, STBBody[] stBody);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -157,6 +158,8 @@ namespace OmronOkaoSTBLib
 
         private static bool _nextFlag = false;
 
+        [MarshalAs(UnmanagedType.LPArray)] private static STBFace[] _faces;
+
         private static void Main(string[] args)
         {
             Console.Write("System has started.\r\nPlease input serial port name:");
@@ -168,8 +171,8 @@ namespace OmronOkaoSTBLib
             SerialHandler.OnSerialThreadingStopped += SerialHandlerOnSerialThreadingStopped;
             //SerialHandlerComponent.OnPrepared += SerialHandlerComponentOnOnPrepared;
             IntPtr stbHandle = new IntPtr();
-            stbHandle = STBLib.STBCreateHandle((uint)STBExecFlag.FaceTracking);
-            STBFace[] faces = new STBFace[35];
+            stbHandle = STBLib.STBCreateHandle((uint)STBExecFlag.FaceTracking | (uint)STBExecFlag.FaceDir);
+            _faces = new STBFace[35];
 
             while (true)
             {
@@ -179,11 +182,11 @@ namespace OmronOkaoSTBLib
                 Console.WriteLine("Set Result: {0}", STBLib.STBSetFrameResult(stbHandle, ref _camera1.FrameResult));
                 Console.WriteLine("Excute: {0}", STBLib.STBExecute(stbHandle));
                 uint nCount = 0;
-                Console.WriteLine("Get Face Cmd: {0}", STBLib.STBGetFaces(stbHandle, ref nCount, faces));
+                Console.WriteLine("Get Face Cmd: {0}", STBLib.STBGetFaces(stbHandle, ref nCount, _faces));
 
                 for (int i = 0; i < nCount; i++)
                 {
-                    var face = faces[i];
+                    var face = _faces[i];
 
                     if (!face.Equals(null))
                     {
