@@ -176,7 +176,8 @@ namespace OmronOkaoSTBLib
 
             while (true)
             {
-                SendCommand(OmronCmd.Exec);
+                OmronCmd cmd = OmronCmd.Exec;
+                SendCommand(cmd);
                 while (!_nextFlag) { }
                 _nextFlag = false;
                 Console.WriteLine("Set Result: {0}", STBLib.STBSetFrameResult(stbHandle, ref _camera1.FrameResult));
@@ -204,7 +205,6 @@ namespace OmronOkaoSTBLib
             //STBSetFrameResult(stbHandle, )
 
         }
-
 
         //        private static void SerialHandlerComponentOnOnPrepared()
         //        {
